@@ -41,5 +41,33 @@ const resolvers = {
 
             return {token, user};
         },
+
+        saveBook: async (parent, {input}, context) => {
+            if (context.user) {
+                const updatedUser = await User.findOneAndUpdate(
+                    {_id: context.user._id},
+                    {$addToSet: {savedBooks: input}},
+                    {new: true}
+                ).populate("savedBooks");
+
+                return updatedUser;
+            }
+            throw new AuthenticationError("You need to be logged in!");
+        },
+
+        removeBook: async (parent, {bookId}, context) => {
+            if (context.user) {
+                const updatedUser = await User.findOneAndUpdate(
+                    {_id: context.user._id},
+                    {$pull: {savedBooks: {bookId: bookId}}},
+                    {new: true}
+                ).populate("savedBooks");
+
+                return updatedUser;
+            }
+            throw new AuthenticationError("You need to be logged in!");
+        }
     }
-}
+};
+
+module.exports = resolvers;
